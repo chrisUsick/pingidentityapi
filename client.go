@@ -14,25 +14,25 @@ type Client struct {
 }
 
 type Configuration struct {
-	baseURL			string
-	username		string
-	password		string 
-	transport		http.RoundTripper
+	BaseURL			string
+	Username		string
+	Password		string 
+	Transport		http.RoundTripper
 }
 
 
 func NewClient(config *Configuration) *Client {
 	client := resty.New()
-	if config.transport != nil {
-		client.SetTransport(config.transport)
+	if config.Transport != nil {
+		client.SetTransport(config.Transport)
 	}
 	client.SetHeader("X-Xsrf-Header", "PingAccess")
 	client.SetHeader("Accept", "application/json")
 	client.SetHeader("Content-Type", "application/json")
-	client.SetBasicAuth(config.username, config.password)
+	client.SetBasicAuth(config.Username, config.Password)
 	client.SetRESTMode()
 	return &Client {
-		baseURL: config.baseURL,
+		baseURL: config.BaseURL,
 		Client: client,
 	}
 }
