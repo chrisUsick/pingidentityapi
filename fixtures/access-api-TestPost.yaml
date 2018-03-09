@@ -1,0 +1,43 @@
+---
+version: 1
+rwmutex: {}
+interactions:
+- request:
+    body: '{"host":"test","port":3000}'
+    form: {}
+    headers:
+      Accept:
+      - application/json
+      Authorization:
+      - Basic QWRtaW5pc3RyYXRvcjpUZXN0cGFzc3dvcmQx
+      Content-Type:
+      - application/json
+      User-Agent:
+      - go-resty v1.3 - https://github.com/go-resty/resty
+      X-Xsrf-Header:
+      - PingAccess
+    url: https://192.168.33.111:9000/pa-admin-api/v3/virtualhosts
+    method: POST
+  response:
+    body: '{"id":3,"host":"test","port":3000,"agentResourceCacheTTL":0,"keyPairId":0,"trustedCertificateGroupId":0}'
+    headers:
+      Cache-Control:
+      - no-cache,no-store
+      Content-Length:
+      - "104"
+      Content-Type:
+      - application/json
+      Date:
+      - Fri, 09 Mar 2018 16:30:22 GMT
+      Expires:
+      - "0"
+      Pragma:
+      - no-cache
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+      X-Xss-Protection:
+      - 1; mode=block
+    status: 200 OK
+    code: 200
