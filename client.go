@@ -35,6 +35,7 @@ type Configuration struct {
 	BaseURL   string
 	Username  string
 	Password  string
+	XSRFHeader string
 	Transport http.RoundTripper
 }
 
@@ -43,7 +44,11 @@ func NewClient(config *Configuration) *Client {
 	if config.Transport != nil {
 		client.SetTransport(config.Transport)
 	}
-	client.SetHeader("X-Xsrf-Header", "PingAccess")
+	if config.XSRFHeader != "" {
+		client.SetHeader("X-Xsrf-Header", config.XSRFHeader)
+	} else {
+		client.SetHeader("X-Xsrf-Header", "PingAccess")
+	}
 	client.SetHeader("Accept", "application/json")
 	client.SetHeader("Content-Type", "application/json")
 	client.SetBasicAuth(config.Username, config.Password)
