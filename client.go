@@ -1,25 +1,42 @@
 package pingidentityapi
 
 import (
-	"net/http"
 	"encoding/json"
+	"fmt"
+	"net/http"
+
 	"gopkg.in/resty.v1"
 )
 
 type Client struct {
-	baseURL 		string
-	username 		string
-	password 		string
+	baseURL  string
+	username string
+	password string
 	*resty.Client
 }
 
-type Configuration struct {
-	BaseURL			string
-	Username		string
-	Password		string 
-	Transport		http.RoundTripper
+type ClientError struct {
+	FullResponse *resty.Response
+	Body         map[string]interface{}
 }
 
+func (e *ClientError) Error() string {
+	return string(e.FullResponse.Body())
+}
+
+type IClient interface {
+	Get(path string) (map[string]interface{}, error)
+	Post(path string, body map[string]interface{}) (map[string]interface{}, error)
+	Put(path string, body map[string]interface{}) (map[string]interface{}, error)
+	Delete(path string) (map[string]interface{}, error)
+}
+
+type Configuration struct {
+	BaseURL   string
+	Username  string
+	Password  string
+	Transport http.RoundTripper
+}
 
 func NewClient(config *Configuration) *Client {
 	client := resty.New()
@@ -31,10 +48,22 @@ func NewClient(config *Configuration) *Client {
 	client.SetHeader("Content-Type", "application/json")
 	client.SetBasicAuth(config.Username, config.Password)
 	client.SetRESTMode()
-	return &Client {
+	return &Client{
 		baseURL: config.BaseURL,
-		Client: client,
+		Client:  client,
 	}
+}
+
+type errorJson struct {
+	json map[string]interface{}
+}
+
+func (e *errorJson) Error() string {
+	s, err := json.Marshal(e.json)
+	if s == nil {
+		return fmt.Sprintf("Error marshalling json: %v", err)
+	}
+	return string(s)
 }
 
 func (c *Client) Get(path string) (map[string]interface{}, error) {
@@ -44,6 +73,9 @@ func (c *Client) Get(path string) (map[string]interface{}, error) {
 	}
 	var m map[string]interface{}
 	json.Unmarshal(resp.Body(), &m)
+	if resp.StatusCode() != 200 {
+		return nil, &ClientError{Body: m, FullResponse: resp}
+	}
 	return m, err
 }
 
@@ -54,6 +86,9 @@ func (c *Client) Post(path string, body map[string]interface{}) (map[string]inte
 	}
 	var m map[string]interface{}
 	json.Unmarshal(resp.Body(), &m)
+	if resp.StatusCode() != 200 {
+		return nil, &errorJson{m}
+	}
 	return m, err
 }
 
@@ -64,6 +99,9 @@ func (c *Client) Put(path string, body map[string]interface{}) (map[string]inter
 	}
 	var m map[string]interface{}
 	json.Unmarshal(resp.Body(), &m)
+	if resp.StatusCode() != 200 {
+		return nil, &ClientError{Body: m, FullResponse: resp}
+	}
 	return m, err
 }
 
@@ -74,5 +112,8 @@ func (c *Client) Delete(path string) (map[string]interface{}, error) {
 	}
 	var m map[string]interface{}
 	json.Unmarshal(resp.Body(), &m)
+	if resp.StatusCode() != 200 {
+		return nil, &errorJson{m}
+	}
 	return m, err
 }
