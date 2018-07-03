@@ -84,7 +84,7 @@ func createAccessRecorder(t *testing.T) *recorder.Recorder {
 }
 
 func createClient(r http.RoundTripper) *Client {
-	return NewClient(&Configuration{"https://192.168.33.111:9000/pa-admin-api/v3/", "Administrator", "Testpassword1", r})
+	return NewClient(&Configuration{"https://192.168.33.111:9000/pa-admin-api/v3/", "Administrator", "Testpassword1", "pf", r})
 }
 
 func initTest(t *testing.T) (*recorder.Recorder, *Client) {
